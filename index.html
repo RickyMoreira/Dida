@@ -35,8 +35,8 @@
   </label>
 
   <label>
-    Espessura das barras horizontais (cm) (topo e base):
-    <input type="text" id="espessuraBarra" value="3">
+    Medida do metalon (ex: 20x30):
+    <input type="text" id="metalon" value="20x30">
   </label>
 
   <label>
@@ -55,8 +55,7 @@
 
   <script>
     function toNumber(id) {
-      const raw = document.getElementById(id).value.trim().replace(',', '.');
-      return parseFloat(raw);
+      return parseFloat(document.getElementById(id).value.trim().replace(',', '.'));
     }
 
     function calcular() {
@@ -64,32 +63,50 @@
       const altura = toNumber('altura');
       const espacamentoCm = toNumber('espacamento');
       const barrotes = parseInt(document.getElementById('barrotes').value.trim(), 10);
-      const espessuraBarra = toNumber('espessuraBarra') / 100; // cm → m
       const barra = toNumber('barra');
       const extremidades = document.getElementById('extremidades').checked;
 
+      // pegar metalon e extrair menor lado
+      const metalonStr = document.getElementById('metalon').value.trim().toLowerCase();
+      const partes = metalonStr.split('x');
+
+      if (partes.length !== 2) {
+        document.getElementById('resultado').innerHTML = 'Formato do metalon inválido. Use algo como 20x30.';
+        return;
+      }
+
+      const lado1 = parseFloat(partes[0]);
+      const lado2 = parseFloat(partes[1]);
+
+      if (isNaN(lado1) || isNaN(lado2)) {
+        document.getElementById('resultado').innerHTML = 'Medidas do metalon inválidas.';
+        return;
+      }
+
+      const menorLadoMm = Math.min(lado1, lado2); // mm
+      const espessuraBarra = menorLadoMm / 10 / 100; // mm → cm → m
+
       if (
         isNaN(comprimento) || isNaN(altura) || isNaN(espacamentoCm) ||
-        isNaN(barrotes) || isNaN(espessuraBarra) || isNaN(barra)
+        isNaN(barrotes) || isNaN(barra)
       ) {
-        document.getElementById('resultado').innerHTML = 'Preencha todos os campos corretamente (números).';
+        document.getElementById('resultado').innerHTML = 'Preencha todos os campos corretamente.';
         return;
       }
 
       const alturaUtil = altura - 2 * espessuraBarra;
+
       if (alturaUtil <= 0) {
         document.getElementById('resultado').innerHTML =
-          'A espessura das barras horizontais é maior ou igual à altura total.';
+          'A espessura calculada do metalon é maior que a altura total.';
         return;
       }
 
-      const espacamento = espacamentoCm / 100; // cm → m
+      const espacamento = espacamentoCm / 100;
       const vaos = comprimento / espacamento;
 
       let montantes = Math.floor(vaos);
-      if (extremidades) {
-        montantes += 1;
-      }
+      if (extremidades) montantes += 1;
 
       const pecasVertPorBarra = Math.floor(barra / alturaUtil);
       const barrasMontantes = pecasVertPorBarra > 0
@@ -104,12 +121,11 @@
       const totalBarras = barrasMontantes + barrasBarrotes;
 
       document.getElementById('resultado').innerHTML = `
+        <b>Metalon:</b> ${metalonStr} (menor lado = ${menorLadoMm} mm)<br>
+        <b>Espessura usada:</b> ${(menorLadoMm/10).toFixed(1)} cm<br>
         <b>Altura útil dos montantes:</b> ${alturaUtil.toFixed(3)} m<br>
         <b>Montantes verticais:</b> ${montantes}<br>
-        <b>Barrotes horizontais:</b> ${barrotes}<br>
-        <b>Peças verticais por barra de ${barra} m:</b> ${pecasVertPorBarra}<br>
         <b>Barras para montantes:</b> ${barrasMontantes}<br>
-        <b>Peças horizontais por barra de ${barra} m:</b> ${pecasHorizPorBarra}<br>
         <b>Barras para barrotes:</b> ${barrasBarrotes}<br>
         <hr>
         <b>Total de barras comerciais:</b> ${totalBarras}
