@@ -1,40 +1,101 @@
-function calcular() {
-  const comprimento = parseFloat(document.getElementById('comprimento').value);
-  const espacamentoCm = parseFloat(document.getElementById('espacamento').value);
-  const altura = parseFloat(document.getElementById('altura').value);
-  const barra = parseFloat(document.getElementById('barra').value);
-  const extremidades = document.getElementById('extremidades').checked;
-  const espessuraBarra = parseFloat(document.getElementById('espessuraBarra').value) / 100;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Guarda-Corpo</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
+    label { display: block; margin-top: 10px; }
+    input { width: 100%; padding: 6px; margin-top: 4px; }
+    button { margin-top: 15px; padding: 8px 12px; cursor: pointer; }
+    .resultado { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
 
-  if (isNaN(comprimento) || isNaN(espacamentoCm) || isNaN(altura) || isNaN(barra) || isNaN(espessuraBarra)) {
-    document.getElementById('resultado').innerHTML = 'Preencha todos os campos corretamente.';
-    return;
-  }
+  <h1>Calculadora de barras para guarda-corpo</h1>
 
-  const alturaUtil = altura - (2 * espessuraBarra);
+  <label>
+    Comprimento do guarda-corpo (m):
+    <input type="number" id="comprimento" value="10" step="0.01">
+  </label>
 
-  if (alturaUtil <= 0) {
-    document.getElementById('resultado').innerHTML = 'A espessura das barras é maior que a altura total!';
-    return;
-  }
+  <label>
+    Espaçamento entre montantes (cm):
+    <input type="number" id="espacamento" value="8" step="0.1">
+  </label>
 
-  const espacamento = espacamentoCm / 100;
+  <label>
+    Altura total do guarda-corpo (m):
+    <input type="number" id="altura" value="1.1" step="0.01">
+  </label>
 
-  const vaos = comprimento / espacamento;
+  <label>
+    Espessura das barras horizontais (cm):
+    <input type="number" id="espessuraBarra" value="3" step="0.1">
+  </label>
 
-  let montantes = Math.floor(vaos);
-  if (extremidades) {
-    montantes += 1;
-  }
+  <label>
+    Comprimento da barra comercial (m):
+    <input type="number" id="barra" value="6" step="0.01">
+  </label>
 
-  const pecasPorBarra = Math.floor(barra / alturaUtil);
+  <label>
+    Considerar montante nas duas extremidades?
+    <input type="checkbox" id="extremidades" checked>
+  </label>
 
-  const barrasNecessarias = Math.ceil(montantes / pecasPorBarra);
+  <button onclick="calcular()">Calcular</button>
 
-  document.getElementById('resultado').innerHTML = `
-    <b>Montantes verticais:</b> ${montantes}<br />
-    <b>Altura útil dos montantes:</b> ${alturaUtil.toFixed(3)} m<br />
-    <b>Peças por barra de ${barra} m:</b> ${pecasPorBarra}<br />
-    <b>Barras necessárias:</b> ${barrasNecessarias}
-  `;
-}
+  <div class="resultado" id="resultado"></div>
+
+  <script>
+    function calcular() {
+      const comprimento = parseFloat(document.getElementById('comprimento').value);
+      const espacamentoCm = parseFloat(document.getElementById('espacamento').value);
+      const altura = parseFloat(document.getElementById('altura').value);
+      const espessuraBarra = parseFloat(document.getElementById('espessuraBarra').value) / 100; // cm → m
+      const barra = parseFloat(document.getElementById('barra').value);
+      const extremidades = document.getElementById('extremidades').checked;
+
+      if (isNaN(comprimento) || isNaN(espacamentoCm) || isNaN(altura) || isNaN(barra) || isNaN(espessuraBarra)) {
+        document.getElementById('resultado').innerHTML = 'Preencha todos os campos corretamente.';
+        return;
+      }
+
+      // altura útil dos montantes (descontando barra superior e inferior)
+      const alturaUtil = altura - (2 * espessuraBarra);
+
+      if (alturaUtil <= 0) {
+        document.getElementById('resultado').innerHTML = 'A espessura das barras é maior que a altura total!';
+        return;
+      }
+
+      const espacamento = espacamentoCm / 100; // cm → m
+
+      // número de vãos
+      const vaos = comprimento / espacamento;
+
+      // montantes verticais
+      let montantes = Math.floor(vaos);
+      if (extremidades) {
+        montantes += 1; // mais um para fechar na outra ponta
+      }
+
+      // quantas peças saem de uma barra comercial
+      const pecasPorBarra = Math.floor(barra / alturaUtil);
+
+      // barras necessárias
+      const barrasNecessarias = Math.ceil(montantes / pecasPorBarra);
+
+      document.getElementById('resultado').innerHTML = `
+        <b>Montantes verticais:</b> ${montantes}<br />
+        <b>Altura útil dos montantes:</b> ${alturaUtil.toFixed(3)} m<br />
+        <b>Peças por barra de ${barra} m:</b> ${pecasPorBarra}<br />
+        <b>Barras necessárias:</b> ${barrasNecessarias}
+      `;
+    }
+  </script>
+
+</body>
+</html>
