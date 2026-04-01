@@ -16,32 +16,32 @@
 
   <label>
     Comprimento da estrutura (m):
-    <input type="number" id="comprimento" value="10" step="0.01">
+    <input type="text" id="comprimento" value="10">
   </label>
 
   <label>
     Altura total (m):
-    <input type="number" id="altura" value="1.1" step="0.01">
+    <input type="text" id="altura" value="1,1">
   </label>
 
   <label>
     Espaçamento entre montantes (cm):
-    <input type="number" id="espacamento" value="8" step="0.1">
+    <input type="text" id="espacamento" value="8">
   </label>
 
   <label>
     Número de barrotes horizontais:
-    <input type="number" id="barrotes" value="2" step="1">
+    <input type="text" id="barrotes" value="2">
   </label>
 
   <label>
     Espessura das barras horizontais (cm) (topo e base):
-    <input type="number" id="espessuraBarra" value="3" step="0.1">
+    <input type="text" id="espessuraBarra" value="3">
   </label>
 
   <label>
     Comprimento da barra comercial (m):
-    <input type="number" id="barra" value="6" step="0.01">
+    <input type="text" id="barra" value="6">
   </label>
 
   <label>
@@ -54,24 +54,28 @@
   <div class="resultado" id="resultado"></div>
 
   <script>
+    function toNumber(id) {
+      const raw = document.getElementById(id).value.trim().replace(',', '.');
+      return parseFloat(raw);
+    }
+
     function calcular() {
-      const comprimento = parseFloat(document.getElementById('comprimento').value);
-      const altura = parseFloat(document.getElementById('altura').value);
-      const espacamentoCm = parseFloat(document.getElementById('espacamento').value);
-      const barrotes = parseInt(document.getElementById('barrotes').value, 10);
-      const espessuraBarra = parseFloat(document.getElementById('espessuraBarra').value) / 100; // cm → m
-      const barra = parseFloat(document.getElementById('barra').value);
+      const comprimento = toNumber('comprimento');
+      const altura = toNumber('altura');
+      const espacamentoCm = toNumber('espacamento');
+      const barrotes = parseInt(document.getElementById('barrotes').value.trim(), 10);
+      const espessuraBarra = toNumber('espessuraBarra') / 100; // cm → m
+      const barra = toNumber('barra');
       const extremidades = document.getElementById('extremidades').checked;
 
       if (
         isNaN(comprimento) || isNaN(altura) || isNaN(espacamentoCm) ||
         isNaN(barrotes) || isNaN(espessuraBarra) || isNaN(barra)
       ) {
-        document.getElementById('resultado').innerHTML = 'Preencha todos os campos corretamente.';
+        document.getElementById('resultado').innerHTML = 'Preencha todos os campos corretamente (números).';
         return;
       }
 
-      // altura útil dos montantes (descontando barra superior e inferior)
       const alturaUtil = altura - 2 * espessuraBarra;
       if (alturaUtil <= 0) {
         document.getElementById('resultado').innerHTML =
@@ -80,23 +84,18 @@
       }
 
       const espacamento = espacamentoCm / 100; // cm → m
-
-      // número de vãos
       const vaos = comprimento / espacamento;
 
-      // montantes verticais
       let montantes = Math.floor(vaos);
       if (extremidades) {
-        montantes += 1; // fecha na outra ponta
+        montantes += 1;
       }
 
-      // quantas peças verticais saem de uma barra comercial
       const pecasVertPorBarra = Math.floor(barra / alturaUtil);
       const barrasMontantes = pecasVertPorBarra > 0
         ? Math.ceil(montantes / pecasVertPorBarra)
         : 0;
 
-      // barrotes horizontais: cada um tem o comprimento total
       const pecasHorizPorBarra = Math.floor(barra / comprimento);
       const barrasBarrotes = pecasHorizPorBarra > 0
         ? Math.ceil(barrotes / pecasHorizPorBarra)
@@ -106,4 +105,16 @@
 
       document.getElementById('resultado').innerHTML = `
         <b>Altura útil dos montantes:</b> ${alturaUtil.toFixed(3)} m<br>
-       
+        <b>Montantes verticais:</b> ${montantes}<br>
+        <b>Barrotes horizontais:</b> ${barrotes}<br>
+        <b>Peças verticais por barra de ${barra} m:</b> ${pecasVertPorBarra}<br>
+        <b>Barras para montantes:</b> ${barrasMontantes}<br>
+        <b>Peças horizontais por barra de ${barra} m:</b> ${pecasHorizPorBarra}<br>
+        <b>Barras para barrotes:</b> ${barrasBarrotes}<br>
+        <hr>
+        <b>Total de barras comerciais:</b> ${totalBarras}
+      `;
+    }
+  </script>
+</body>
+</html>
