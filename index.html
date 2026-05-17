@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Cálculo de barras verticais</title>
+<title>Cálculo de metalon (verticais + horizontais)</title>
 <style>
   body { font-family: Arial; max-width: 600px; margin: 20px auto; }
   input { width: 100%; padding: 8px; margin: 5px 0; }
@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<h2>Calculadora de barras verticais</h2>
+<h2>Calculadora de barras de metalon</h2>
 
 <label>Altura total da estrutura (m):</label>
 <input type="number" id="altura" step="0.01">
@@ -29,6 +29,9 @@
 <label>Medida do metalon (ex: 20x30):</label>
 <input type="text" id="metalon">
 
+<label>Comprimento da barra comercial (m):</label>
+<input type="number" id="barraComercial" step="0.01">
+
 <button onclick="calcular()">Calcular</button>
 
 <div class="resultado" id="resultado"></div>
@@ -40,24 +43,47 @@ function calcular() {
     const espacamento = parseFloat(document.getElementById("espacamento").value);
     const qtdHorizontais = parseInt(document.getElementById("qtdHorizontais").value);
     const metalon = document.getElementById("metalon").value;
+    const barraComercial = parseFloat(document.getElementById("barraComercial").value);
 
+    if ([altura, comprimento, espacamento, qtdHorizontais, barraComercial].some(v => !v || v <= 0) || !metalon.includes("x")) {
+        document.getElementById("resultado").innerHTML = "<p>Preencha todos os campos corretamente.</p>";
+        return;
+    }
+
+    // menor medida do metalon (mm → m)
     const partes = metalon.toLowerCase().split("x");
     const medida1 = parseFloat(partes[0]);
     const medida2 = parseFloat(partes[1]);
-    const menor = Math.min(medida1, medida2) / 1000; // mm → m
+    const menor = Math.min(medida1, medida2) / 1000;
 
-    // desconto total na altura (ex.: 2 horizontais, metalon 20mm → 0.04m)
+    // desconto na altura pelas barras horizontais
     const descontoTotal = qtdHorizontais * menor;
     const alturaUtil = altura - descontoTotal;
 
-    // número de montantes (fechado dos dois lados)
+    // montantes verticais (fechado dos dois lados)
     const montantes = Math.floor(comprimento / espacamento) + 1;
+
+    // metros verticais
+    const totalVertical = montantes * alturaUtil;
+
+    // metros horizontais
+    const totalHorizontal = qtdHorizontais * comprimento;
+
+    // total geral
+    const totalMetros = totalVertical + totalHorizontal;
+
+    // barras comerciais necessárias
+    const barrasComerciais = Math.ceil(totalMetros / barraComercial);
 
     document.getElementById("resultado").innerHTML = `
         <h3>Resultado</h3>
         <p><b>Menor medida do metalon:</b> ${menor * 1000} mm</p>
         <p><b>Altura útil de cada barra vertical:</b> ${alturaUtil.toFixed(3)} m</p>
         <p><b>Quantidade de barras verticais:</b> ${montantes}</p>
+        <p><b>Total de metros verticais:</b> ${totalVertical.toFixed(2)} m</p>
+        <p><b>Total de metros horizontais:</b> ${totalHorizontal.toFixed(2)} m</p>
+        <p><b>Total geral de metalon:</b> ${totalMetros.toFixed(2)} m</p>
+        <p><b>Barras comerciais necessárias:</b> ${barrasComerciais}</p>
     `;
 }
 </script>
