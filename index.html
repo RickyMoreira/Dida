@@ -1,136 +1,45 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Calculadora de barras de metalon</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 700px; margin: 20px auto; }
-    label { display: block; margin-top: 10px; }
-    input { width: 100%; padding: 6px; margin-top: 4px; }
-    button { margin-top: 15px; padding: 8px 12px; cursor: pointer; }
-    .resultado { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
-  </style>
+<meta charset="UTF-8">
+<title>Cálculo de Barras de Metalon</title>
+<style>
+  body { font-family: Arial; max-width: 600px; margin: 20px auto; }
+  input { width: 100%; padding: 8px; margin: 5px 0; }
+  button { padding: 10px; width: 100%; margin-top: 10px; }
+  .resultado { margin-top: 20px; padding: 15px; background: #f0f0f0; }
+</style>
 </head>
 <body>
-  <h1>Calculadora de barras de metalon</h1>
 
-  <label>
-    Comprimento da estrutura (m):
-    <input type="text" id="comprimento" value="10">
-  </label>
+<h2>Calculadora de Barras de Metalon</h2>
 
-  <label>
-    Altura total (m):
-    <input type="text" id="altura" value="1,1">
-  </label>
+<label>Comprimento da estrutura (m):</label>
+<input type="number" id="comprimento" step="0.01">
 
-  <label>
-    Espaçamento entre barras verticais (cm):
-    <input type="text" id="espacamento" value="8">
-  </label>
+<label>Altura da estrutura (m):</label>
+<input type="number" id="altura" step="0.01">
 
-  <label>
-    Número de barras horizontais:
-    <input type="text" id="barrotes" value="2">
-  </label>
+<label>Espaçamento entre barras verticais (m):</label>
+<input type="number" id="espacamento" step="0.01">
 
-  <label>
-    Medida do metalon (ex: 20x30):
-    <input type="text" id="metalon" value="20x30">
-  </label>
+<label>Quantidade de barras horizontais:</label>
+<input type="number" id="horizontais">
 
-  <label>
-    Comprimento da barra comercial (m):
-    <input type="text" id="barra" value="6">
-  </label>
+<label>Comprimento da barra comercial (m):</label>
+<input type="number" id="barraComercial" step="0.01">
 
-  <label>
-    Considerar montante nas duas extremidades?
-    <input type="checkbox" id="extremidades" checked>
-  </label>
+<button onclick="calcular()">Calcular</button>
 
-  <button onclick="calcular()">Calcular</button>
+<div class="resultado" id="resultado"></div>
 
-  <div class="resultado" id="resultado"></div>
+<script>
+function calcular() {
+    const comprimento = parseFloat(document.getElementById("comprimento").value);
+    const altura = parseFloat(document.getElementById("altura").value);
+    const espacamento = parseFloat(document.getElementById("espacamento").value);
+    const horizontais = parseInt(document.getElementById("horizontais").value);
+    const barraComercial = parseFloat(document.getElementById("barraComercial").value);
 
-  <script>
-    function toNumber(id) {
-      return parseFloat(document.getElementById(id).value.trim().replace(',', '.'));
-    }
-
-    function calcular() {
-      const comprimento = toNumber('comprimento');
-      const altura = toNumber('altura');
-      const espacamentoCm = toNumber('espacamento');
-      const barrotes = parseInt(document.getElementById('barrotes').value.trim(), 10);
-      const barra = toNumber('barra');
-      const extremidades = document.getElementById('extremidades').checked;
-
-      // pegar metalon e extrair menor lado
-      const metalonStr = document.getElementById('metalon').value.trim().toLowerCase();
-      const partes = metalonStr.split('x');
-
-      if (partes.length !== 2) {
-        document.getElementById('resultado').innerHTML = 'Formato do metalon inválido. Use algo como 20x30.';
-        return;
-      }
-
-      const lado1 = parseFloat(partes[0]);
-      const lado2 = parseFloat(partes[1]);
-
-      if (isNaN(lado1) || isNaN(lado2)) {
-        document.getElementById('resultado').innerHTML = 'Medidas do metalon inválidas.';
-        return;
-      }
-
-      const menorLadoMm = Math.min(lado1, lado2); // mm
-      const espessuraBarra = menorLadoMm / 10 / 100; // mm → cm → m
-
-      if (
-        isNaN(comprimento) || isNaN(altura) || isNaN(espacamentoCm) ||
-        isNaN(barrotes) || isNaN(barra)
-      ) {
-        document.getElementById('resultado').innerHTML = 'Preencha todos os campos corretamente.';
-        return;
-      }
-
-      const alturaUtil = altura - 2 * espessuraBarra;
-
-      if (alturaUtil <= 0) {
-        document.getElementById('resultado').innerHTML =
-          'A espessura calculada do metalon é maior que a altura total.';
-        return;
-      }
-
-      const espacamento = espacamentoCm / 100;
-      const vaos = comprimento / espacamento;
-
-      let montantes = Math.floor(vaos);
-      if (extremidades) montantes += 1;
-
-      const pecasVertPorBarra = Math.floor(barra / alturaUtil);
-      const barrasMontantes = pecasVertPorBarra > 0
-        ? Math.ceil(montantes / pecasVertPorBarra)
-        : 0;
-
-      const pecasHorizPorBarra = Math.floor(barra / comprimento);
-      const barrasBarrotes = pecasHorizPorBarra > 0
-        ? Math.ceil(barrotes / pecasHorizPorBarra)
-        : 0;
-
-      const totalBarras = barrasMontantes + barrasBarrotes;
-
-      document.getElementById('resultado').innerHTML = `
-        <b>Metalon:</b> ${metalonStr} (menor lado = ${menorLadoMm} mm)<br>
-        <b>Espessura usada:</b> ${(menorLadoMm/10).toFixed(1)} cm<br>
-        <b>Altura útil dos montantes (verticais):</b> ${alturaUtil.toFixed(3)} m<br>
-        <b>Qtde de Montantes:</b> ${montantes}<br>
-        <b>Barras Bruta para Montantes:</b> ${barrasMontantes}<br>
-        <b>Barras Bruta para  Travessas:</b> ${barrasBarrotes}<br>
-        <hr>
-        <b>Total de barras comerciais:</b> ${totalBarras}
-      `;
-    }
-  </script>
-</body>
-</html>
+    // Montantes verticais (fechado dos dois lados)
+    const montantes = Math.floor(comprimento / espac
