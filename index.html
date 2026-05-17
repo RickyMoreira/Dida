@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <meta property="og:title" content="Dida - Acesse Agora">
+<meta property="og:description" content="Clique para abrir o site Dida.">
+<meta property="og:image" content="https://rickymoreira.github.io/Dida/imagem.jpg">
+<meta property="og:url" content="https://rickymoreira.github.io/Dida/">
+
 <meta charset="UTF-8">
 <title>Cálculo de metalon (verticais + horizontais)</title>
 <style>
@@ -77,7 +82,6 @@ function calcular() {
 
     document.getElementById("resultado").innerHTML = `
         <h3>Resultado</h3>
-        <p><b>Menor medida do metalon:</b> ${menor * 1000} mm</p>
         <p><b>Altura útil de cada barra vertical:</b> ${alturaUtil.toFixed(3)} m</p>
         <p><b>Quantidade de barras verticais:</b> ${montantes}</p>
         <p><b>Total de metros verticais:</b> ${totalVertical.toFixed(2)} m</p>
