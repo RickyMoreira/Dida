@@ -42,4 +42,30 @@ function calcular() {
     const barraComercial = parseFloat(document.getElementById("barraComercial").value);
 
     // Montantes verticais (fechado dos dois lados)
-    const montantes = Math.floor(comprimento / espac
+    const montantes = Math.floor(comprimento / espacamento) + 1 + 1;
+
+    // Total de barras verticais em metros
+    const totalVertical = montantes * altura;
+
+    // Total de barras horizontais em metros
+    const totalHorizontal = horizontais * comprimento;
+
+    // Total geral em metros
+    const totalMetros = totalVertical + totalHorizontal;
+
+    // Quantidade de barras comerciais necessárias
+    const barrasComerciais = Math.ceil(totalMetros / barraComercial);
+
+    document.getElementById("resultado").innerHTML = `
+        <h3>Resultado</h3>
+        <p><b>Montantes verticais:</b> ${montantes}</p>
+        <p><b>Total de metros verticais:</b> ${totalVertical.toFixed(2)} m</p>
+        <p><b>Total de metros horizontais:</b> ${totalHorizontal.toFixed(2)} m</p>
+        <p><b>Total geral de metalon:</b> ${totalMetros.toFixed(2)} m</p>
+        <p><b>Barras comerciais necessárias:</b> ${barrasComerciais}</p>
+    `;
+}
+</script>
+
+</body>
+</html>
