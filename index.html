@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Cálculo de Barras de Metalon</title>
+<title>Cálculo de barras horizontais de metalon</title>
 <style>
   body { font-family: Arial; max-width: 600px; margin: 20px auto; }
   input { width: 100%; padding: 8px; margin: 5px 0; }
@@ -12,19 +12,13 @@
 </head>
 <body>
 
-<h2>Calculadora de Barras de Metalon</h2>
+<h2>Calculadora de barras horizontais de metalon</h2>
 
 <label>Comprimento da estrutura (m):</label>
 <input type="number" id="comprimento" step="0.01">
 
-<label>Altura da estrutura (m):</label>
-<input type="number" id="altura" step="0.01">
-
-<label>Espaçamento entre barras verticais (m):</label>
-<input type="number" id="espacamento" step="0.01">
-
 <label>Quantidade de barras horizontais:</label>
-<input type="number" id="horizontais">
+<input type="number" id="qtdHorizontais">
 
 <label>Comprimento da barra comercial (m):</label>
 <input type="number" id="barraComercial" step="0.01">
@@ -36,32 +30,23 @@
 <script>
 function calcular() {
     const comprimento = parseFloat(document.getElementById("comprimento").value);
-    const altura = parseFloat(document.getElementById("altura").value);
-    const espacamento = parseFloat(document.getElementById("espacamento").value);
-    const horizontais = parseInt(document.getElementById("horizontais").value);
+    const qtdHorizontais = parseInt(document.getElementById("qtdHorizontais").value);
     const barraComercial = parseFloat(document.getElementById("barraComercial").value);
 
-    // Montantes verticais (fechado dos dois lados)
-    const montantes = Math.floor(comprimento / espacamento) + 1 + 1;
+    if (isNaN(comprimento) || isNaN(qtdHorizontais) || isNaN(barraComercial) || comprimento <= 0 || qtdHorizontais <= 0 || barraComercial <= 0) {
+        document.getElementById("resultado").innerHTML = "<p>Preencha todos os campos com valores válidos.</p>";
+        return;
+    }
 
-    // Total de barras verticais em metros
-    const totalVertical = montantes * altura;
-
-    // Total de barras horizontais em metros
-    const totalHorizontal = horizontais * comprimento;
-
-    // Total geral em metros
-    const totalMetros = totalVertical + totalHorizontal;
+    // Total de metros necessários só para as barras horizontais
+    const totalHorizontal = comprimento * qtdHorizontais;
 
     // Quantidade de barras comerciais necessárias
-    const barrasComerciais = Math.ceil(totalMetros / barraComercial);
+    const barrasComerciais = Math.ceil(totalHorizontal / barraComercial);
 
     document.getElementById("resultado").innerHTML = `
         <h3>Resultado</h3>
-        <p><b>Montantes verticais:</b> ${montantes}</p>
-        <p><b>Total de metros verticais:</b> ${totalVertical.toFixed(2)} m</p>
-        <p><b>Total de metros horizontais:</b> ${totalHorizontal.toFixed(2)} m</p>
-        <p><b>Total geral de metalon:</b> ${totalMetros.toFixed(2)} m</p>
+        <p><b>Total de metros de barras horizontais:</b> ${totalHorizontal.toFixed(2)} m</p>
         <p><b>Barras comerciais necessárias:</b> ${barrasComerciais}</p>
     `;
 }
